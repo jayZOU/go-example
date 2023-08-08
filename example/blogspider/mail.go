@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"reflect"
-	"strings"
 
 	"github.com/jayZOU/go-example/example/blogspider/email"
 	htmlTemplate "github.com/jayZOU/go-example/example/blogspider/html"
@@ -24,29 +21,8 @@ func main() {
 		return
 	}
 
-	html := generateHtml(htmlTemplate.HTML, articleList)
-
+	html := htmlTemplate.GenerateHtml(articleList)
 	email.Send(html)
-
-}
-
-func generateHtml(html string, articleList map[string]spider.Article) string {
-
-	for auther, article := range articleList {
-		field := reflect.TypeOf(article)
-		valueOf := reflect.ValueOf(article)
-		fieldLen := field.NumField()
-
-		for i := 0; i < fieldLen; i++ {
-			key := field.Field(i).Name
-			value := valueOf.Field(i)
-
-			mark := fmt.Sprintf("{{%s.%s}}", auther, key)
-			html = strings.ReplaceAll(html, mark, value.String())
-		}
-
-	}
-	return html
 }
 
 func loadEnv() {

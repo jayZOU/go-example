@@ -1,7 +1,6 @@
 package spider
 
 import (
-	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -9,25 +8,13 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func Start() map[string]Article {
+func Start() map[string][]Article {
 
-	articleList := map[string]Article{}
+	articleList := map[string][]Article{}
 
-	ruanyifeng, err := getRuanYiFeng()
-
-	if err == nil {
-		articleList["ruanyifeng"] = ruanyifeng
-	}
-
+	articleList["张鑫旭"] = getZhangXinXu()
+	articleList["阮一峰"] = getRuanYiFeng()
 	return articleList
-}
-
-func Test() map[string]struct{ a int } {
-	return map[string]struct{ a int }{
-		"test": {
-			a: 1,
-		},
-	}
 }
 
 func fetchHtml(url string) *goquery.Document {
@@ -48,11 +35,8 @@ func fetchHtml(url string) *goquery.Document {
 	return doc
 }
 
-func getRuanYiFeng() (Article, error) {
-	var article = Article{
-		Title: "",
-		Url:   "",
-	}
+func getRuanYiFeng() []Article {
+	var article []Article
 	url := "https://www.ruanyifeng.com/blog/"
 	doc := fetchHtml(url)
 
@@ -70,15 +54,49 @@ func getRuanYiFeng() (Article, error) {
 	now := time.Now()
 	dayTime := 24 * 60 * 60
 	if now.Unix()-parse_time.Unix() > int64(dayTime) {
-		return article, errors.New("no latest articles")
+		return article
 	}
 
 	//获取最新的文章和链接
 	node := doc.Find(".entry-title").Find("a")
 	articleUrl, _ := node.Attr("href")
 	articleTitle := node.Text()
-	article.Url = articleUrl
-	article.Title = articleTitle
+	article = append(article, Article{
+		Title: articleTitle,
+		Url:   articleUrl,
+	})
 
-	return article, nil
+	return article
+}
+
+func getZhangXinXu() []Article {
+	layout := "2006年01月02日"
+	var article []Article
+	url := "https://www.zhangxinxu.com/wordpress/"
+	doc := fetchHtml(url)
+
+	doc.Find(".post").Each(func(i int, div *goquery.Selection) {
+		url, exist := div.Find(".entry-title").Attr("href")
+		title := div.Find(".entry-title").Text()
+		date := div.Find(".date").Text()
+		if exist {
+			parse_time, _ := time.Parse(layout, date)
+			timestamp := parse_time.Unix()
+			if diffNow(timestamp) {
+
+				article = append(article, Article{
+					Title: title,
+					Url:   url,
+				})
+			}
+		}
+	})
+	return article
+}
+
+func diffNow(timestamp int64) bool {
+	now := time.Now()
+	dayTime := 24 * 60 * 60
+
+	return now.Unix()-timestamp < int64(dayTime)
 }
