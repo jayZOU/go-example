@@ -1,8 +1,10 @@
 package spider
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -14,6 +16,7 @@ func Start() ArticleList {
 
 	articleList["张鑫旭"] = getZhangXinXu()
 	articleList["阮一峰"] = getRuanYiFeng()
+	articleList["Github Trending"] = getGithubTrending()
 	return articleList
 }
 
@@ -90,6 +93,30 @@ func getZhangXinXu() []Article {
 				})
 			}
 		}
+	})
+	return article
+}
+
+func getGithubTrending() []Article {
+	var article []Article
+	url := "https://github.com/trending"
+	doc := fetchHtml(url)
+
+	doc.Find(".Box-row").Each(func(i int, s *goquery.Selection) {
+		url, _ := s.Find(".Box-row > .lh-condensed > .Link").Attr("href")
+		url = fmt.Sprintf("https://github.com%s", url) //拼接访问URL
+
+		title := s.Find(".Box-row > .lh-condensed > .Link").Text()
+		title = strings.ReplaceAll(strings.ReplaceAll(title, " ", ""), "\n", "") //去除空格和换行
+
+		desc := s.Find(".Box-row > p.color-fg-muted").Text()
+		desc = strings.TrimSpace(strings.ReplaceAll(desc, "\n", ""))
+
+		article = append(article, Article{
+			Title: title,
+			Url:   url,
+			Desc:  desc,
+		})
 	})
 	return article
 }
