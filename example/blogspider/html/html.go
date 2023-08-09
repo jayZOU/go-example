@@ -14,7 +14,7 @@ func GenerateHtml(articleList spider.ArticleList) string {
 		}
 		articleListTemp := ``
 		for _, article := range articles {
-			articleListTemp += fmt.Sprintf("<p><a href='%s'>%s</a></p>", article.Url, article.Title)
+			articleListTemp += fmt.Sprintf("<p><a href='%s'>%s</a><br><span>%s</span><br></p>", article.Url, article.Title, article.Desc)
 		}
 		html += fmt.Sprintf(`
 			<h2>%s</h2>
