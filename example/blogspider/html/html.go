@@ -6,7 +6,7 @@ import (
 	"github.com/jayZOU/go-example/example/blogspider/spider"
 )
 
-func GenerateHtml(articleList map[string][]spider.Article) string {
+func GenerateHtml(articleList spider.ArticleList) string {
 	var html string
 	for auther, articles := range articleList {
 		if len(articles) == 0 {

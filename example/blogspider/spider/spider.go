@@ -8,9 +8,9 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func Start() map[string][]Article {
+func Start() ArticleList {
 
-	articleList := map[string][]Article{}
+	articleList := ArticleList{}
 
 	articleList["张鑫旭"] = getZhangXinXu()
 	articleList["阮一峰"] = getRuanYiFeng()
