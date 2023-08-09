@@ -16,7 +16,9 @@ func main() {
 	// 启动爬虫
 	articleList := spider.Start()
 
-	if len(articleList) == 0 {
+	log.Print(articleList)
+
+	if articleLen(articleList) == 0 {
 		log.Print("article len: 0")
 		return
 	}
@@ -30,4 +32,12 @@ func loadEnv() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+}
+
+func articleLen(articleList spider.ArticleList) int {
+	articleLen := 0
+	for _, articles := range articleList {
+		articleLen += len(articles)
+	}
+	return articleLen
 }
